@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Physics Formula Solver</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    color: #172033;
+}
+
+header {
+    background: #172b4d;
+    color: white;
+    padding: 25px 15px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+header p {
+    margin: 8px 0 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.search {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #ccd5e0;
+    border-radius: 10px;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.categories {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.category {
+    border: none;
+    padding: 10px 14px;
+    border-radius: 20px;
+    background: #dfe7f2;
+    cursor: pointer;
+}
+
+.category.active {
+    background: #172b4d;
+    color: white;
+}
+
+.formulas {
+    display: grid;
+    gap: 12px;
+}
+
+.formula-card {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    cursor: pointer;
+}
+
+.formula-card h3 {
+    margin: 0 0 8px;
+}
+
+.formula {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.calculator {
+    display: none;
+    background: white;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.calculator input {
+    width: 100%;
+    padding: 12px;
+    margin: 7px 0 15px;
+    border: 1px solid #bbc5d1;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.calculate {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 8px;
+    background: #172b4d;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #eef5ff;
+    border-radius: 10px;
+}
+
+.solution {
+    margin-top: 10px;
+    line-height: 1.8;
+}
+
+.back {
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #667085;
+}
+
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 23px;
+    }
+
+    .container {
+        padding: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>⚡ Physics Formula Solver</h1>
+    <p>Learn • Calculate • Understand</p>
+</header>
+
+<div class="container">
+
+    <input
+        type="text"
+        id="search"
+        class="search"
+        placeholder="🔍 Search a formula..."
+        oninput="searchFormulas()"
+    >
+
+    <div class="categories">
+        <button class="category active" onclick="filterCategory('All', this)">All</button>
+        <button class="category" onclick="filterCategory('Motion', this)">Motion</button>
+        <button class="category" onclick="filterCategory('Force', this)">Force</button>
+        <button class="category" onclick="filterCategory('Energy', this)">Energy</button>
+        <button class="category" onclick="filterCategory('Electricity', this)">Electricity</button>
+    </div>
+
+    <div id="formulaList" class="formulas"></div>
+
+    <div id="calculator" class="calculator">
+
+        <button class="back" onclick="showFormulas()">← Back to formulas</button>
+
+        <h2 id="calculatorTitle"></h2>
+
+        <p id="calculatorFormula" class="formula"></p>
+
+        <div id="inputs"></div>
+
+        <button class="calculate" onclick="calculateFormula()">
+            Calculate
+        </button>
+
+        <div id="result" class="result" style="display:none;"></div>
+
+    </div>
+
+</div>
+
+<footer>
+    Physics Formula Solver — Version 1.0
+</footer>
+
+<script>
+
+const formulas = [
+
+    {
+        name: "Speed",
+        category: "Motion",
+        formula: "v = d / t",
+        variables: [
+            ["distance", "Distance (d)", "m"],
+            ["time", "Time (t)", "s"]
+        ],
+        calculate: v => v.distance / v.time,
+        unit: "m/s",
+        solution: v =>
+            `v = d / t<br>
+             v = ${v.distance} / ${v.time}<br>
+             v = ${v.distance / v.time} m/s`
+    },
+
+    {
+        name: "Distance",
+        category: "Motion",
+        formula: "d = v × t",
+        variables: [
+            ["speed", "Speed (v)", "m/s"],
+            ["time", "Time (t)", "s"]
+        ],
+        calculate: v => v.speed * v.time,
+        unit: "m",
+        solution: v =>
+            `d = v × t<br>
+             d = ${v.speed} × ${v.time}<br>
+             d = ${v.speed * v.time} m`
+    },
+
+    {
+        name: "Acceleration",
+        category: "Motion",
+        formula: "a = (v - u) / t",
+        variables: [
+            ["finalVelocity", "Final velocity (v)", "m/s"],
+            ["initialVelocity", "Initial velocity (u)", "m/s"],
+            ["time", "Time (t)", "s"]
+        ],
+        calculate: v =>
+            (v.finalVelocity - v.initialVelocity) / v.time,
+        unit: "m/s²",
+        solution: v =>
+            `a = (v - u) / t<br>
+             a = (${v.finalVelocity} - ${v.initialVelocity}) / ${v.time}<br>
+             a = ${(v.finalVelocity - v.initialVelocity) / v.time} m/s²`
+    },
+
+    {
+        name: "Force",
+        category: "Force",
+        formula: "F = m × a",
+        variables: [
+            ["mass", "Mass (m)", "kg"],
+            ["acceleration", "Acceleration (a)", "m/s²"]
+        ],
+        calculate: v => v.mass * v.acceleration,
+        unit: "N",
+        solution: v =>
+            `F = m × a<br>
+             F = ${v.mass} × ${v.acceleration}<br>
+             F = ${v.mass * v.acceleration} N`
+    },
+
+    {
+        name: "Kinetic Energy",
+        category: "Energy",
+        formula: "KE = ½mv²",
+        variables: [
+            ["mass", "Mass (m)", "kg"],
+            ["velocity", "Velocity (v)", "m/s"]
+        ],
+        calculate: v =>
+            0.5 * v.mass * v.velocity * v.velocity,
+        unit: "J",
+        solution: v =>
+            `KE = ½mv²<br>
+             KE = ½ × ${v.mass} × ${v.velocity}²<br>
+             KE = ${0.5 * v.mass * v.velocity * v.velocity} J`
+    },
+
+    {
+        name: "Electrical Power",
+        category: "Electricity",
+        formula: "P = V × I",
+        variables: [
+            ["voltage", "Voltage (V)", "V"],
+            ["current", "Current (I)", "A"]
+        ],
+        calculate: v => v.voltage * v.current,
+        unit: "W",
+        solution: v =>
+            `P = V × I<br>
+             P = ${v.voltage} × ${v.current}<br>
+             P = ${v.voltage * v.current} W`
+    }
+
+];
+
+let currentFormula = null;
+let currentCategory = "All";
+
+function displayFormulas(list = formulas) {
+
+    const formulaList = document.getElementById("formulaList");
+
+    formulaList.innerHTML = "";
+
+    if (list.length === 0) {
+        formulaList.innerHTML = "<p>No formulas found.</p>";
+        return;
+    }
+
+    list.forEach((formula, index) => {
+
+        const card = document.createElement("div");
+
+        card.className = "formula-card";
+
+        card.innerHTML = `
+            <h3>${formula.name}</h3>
+            <div class="formula">${formula.formula}</div>
+            <small>${formula.category}</small>
+        `;
+
+        card.onclick = () => openCalculator(index, list);
+
+        formulaList.appendChild(card);
+    });
+}
+
+function openCalculator(index, list) {
+
+    currentFormula = list[index];
+
+    document.getElementById("formulaList").style.display = "none";
+    document.querySelector(".categories").style.display = "none";
+    document.querySelector(".search").style.display = "none";
+
+    document.getElementById("calculator").style.display = "block";
+
+    document.getElementById("calculatorTitle").textContent =
+        currentFormula.name;
+
+    document.getElementById("calculatorFormula").textContent =
+        currentFormula.formula;
+
+    const inputs = document.getElementById("inputs");
+
+    inputs.innerHTML = "";
+
+    currentFormula.variables.forEach(variable => {
+
+        inputs.innerHTML += `
+            <label>${variable[1]} (${variable[2]})</label>
+            <input
+                type="number"
+                id="input-${variable[0]}"
+                placeholder="Enter ${variable[1]}"
+            >
+        `;
+    });
+
+    document.getElementById("result").style.display = "none";
+}
+
+function calculateFormula() {
+
+    const values = {};
+
+    for (const variable of currentFormula.variables) {
+
+        const input = document.getElementById(
+            "input-" + variable[0]
+        );
+
+        const value = Number(input.value);
+
+        if (input.value === "" || isNaN(value)) {
+            alert("Please enter all values.");
+            return;
+        }
+
+        values[variable[0]] = value;
+    }
+
+    const answer = currentFormula.calculate(values);
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("result").innerHTML = `
+        <h3>Answer: ${answer} ${currentFormula.unit}</h3>
+
+        <div class="solution">
+            <strong>Step-by-step solution:</strong><br><br>
+            ${currentFormula.solution(values)}
+        </div>
+    `;
+}
+
+function showFormulas() {
+
+    document.getElementById("calculator").style.display = "none";
+
+    document.getElementById("formulaList").style.display = "grid";
+    document.querySelector(".categories").style.display = "flex";
+    document.querySelector(".search").style.display = "block";
+
+    document.getElementById("result").style.display = "none";
+}
+
+function filterCategory(category, button) {
+
+    currentCategory = category;
+
+    document.querySelectorAll(".category").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+    const filtered =
+        category === "All"
+        ? formulas
+        : formulas.filter(f => f.category === category);
+
+    displayFormulas(filtered);
+}
+
+function searchFormulas() {
+
+    const search =
+        document.getElementById("search").value.toLowerCase();
+
+    const filtered = formulas.filter(f =>
+
+        f.name.toLowerCase().includes(search) ||
+        f.formula.toLowerCase().includes(search) ||
+        f.category.toLowerCase().includes(search)
+
+    );
+
+    displayFormulas(filtered);
+}
+
+displayFormulas();
+
+</script>
+
+</body>
+  </html>
